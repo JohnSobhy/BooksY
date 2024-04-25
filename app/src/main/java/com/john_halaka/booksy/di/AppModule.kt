@@ -13,6 +13,13 @@ import com.john_halaka.booksy.feature_book.network.JsonFetcher
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
 import com.john_halaka.booksy.feature_book.use_cases.GetAllBooks
 import com.john_halaka.booksy.feature_book.use_cases.GetBookById
+import com.john_halaka.booksy.feature_highlight.data.data_source.HighlightDao
+import com.john_halaka.booksy.feature_highlight.data.repository.HighlightRepositoryImpl
+import com.john_halaka.booksy.feature_highlight.domain.repository.HighlightRepository
+import com.john_halaka.booksy.feature_highlight.use_cases.AddHighlight
+import com.john_halaka.booksy.feature_highlight.use_cases.GetBookHighlights
+import com.john_halaka.booksy.feature_highlight.use_cases.HighlightUseCases
+import com.john_halaka.booksy.feature_highlight.use_cases.RemoveHighlight
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -44,6 +51,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun highlightDao(database: BooksYDatabase): HighlightDao {
+        return database.highlightDao
+    }
+
+    @Provides
+    @Singleton
     fun provideBookRepository(
         db: BooksYDatabase,
         context: Context,
@@ -51,6 +64,12 @@ object AppModule {
         jsonFetcher: JsonFetcher
     ): BookRepository{
         return BookRepositoryImpl(db.bookDao, jsonFetcher)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHighlightRepository(db: BooksYDatabase) : HighlightRepository{
+        return HighlightRepositoryImpl(db.highlightDao)
     }
 
     @Provides
@@ -63,6 +82,17 @@ object AppModule {
         return BookUseCases(
             getAllBooks = GetAllBooks(repository),
             getBookById = GetBookById(repository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideHighlightUseCases(repository: HighlightRepository): HighlightUseCases {
+        return HighlightUseCases(
+            addHighlight = AddHighlight(repository),
+            getBookHighlights = GetBookHighlights(repository),
+            removeHighlight = RemoveHighlight(repository)
+
         )
     }
 

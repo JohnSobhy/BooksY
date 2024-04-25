@@ -11,4 +11,10 @@
         android:title="Bookmark"
 
         android:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_remove_highlight"
+        android:title="Remove"
+
+        android:showAsAction="ifRoom"/>
 </menu>

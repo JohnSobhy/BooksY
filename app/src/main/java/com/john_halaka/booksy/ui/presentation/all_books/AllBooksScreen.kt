@@ -21,12 +21,12 @@ fun AllBooksScreen(
     viewModel: BookViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state
-    var booksList = state.allBooks
+    val booksList = state.allBooks
 
 
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Fixed(3),
         modifier = Modifier.padding(16.dp)
     ) {
         items(booksList) { book ->

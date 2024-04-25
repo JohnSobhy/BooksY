@@ -104,5 +104,8 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation (libs.androidx.runtime)
+    implementation (libs.androidx.runtime.livedata)
+
 
 }

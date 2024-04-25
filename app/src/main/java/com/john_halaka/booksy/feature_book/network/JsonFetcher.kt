@@ -7,6 +7,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 
+const val jsonUrl = "https://raw.githubusercontent.com/JohnSobhy/BooksY/master/app/src/main/booksy_api/Booksy.json"
+
 class JsonFetcher {
     private val client = OkHttpClient()
 

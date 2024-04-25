@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.john_halaka.booksy.feature_book.domain.model.Book
 import kotlinx.coroutines.flow.Flow
 
@@ -18,5 +19,8 @@ interface BookDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(books: List<Book>)
+
+    @Update
+    suspend fun updateBookContent(book: Book)
 
 }

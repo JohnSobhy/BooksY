@@ -1,5 +1,6 @@
 package com.john_halaka.booksy.ui.presentation.book_content
 
+import android.content.Context
 import android.graphics.Paint
 import android.os.Build
 import android.text.Highlights
@@ -9,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +50,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -66,7 +70,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun BookContentScreen(
     viewModel: BookContentViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    context: Context
 ) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -83,6 +88,7 @@ fun BookContentScreen(
     val savedHighlightBuilder = remember {
         mutableStateOf(Highlights.Builder())
     }
+    val bookBookmarks by viewModel.bookBookmarks.observeAsState(emptyList())
 
     LaunchedEffect(bookHighlights) {
         // Create the highlights
@@ -133,6 +139,20 @@ fun BookContentScreen(
                                     contentDescription = stringResource(R.string.adjust_font_size)
                                 )
                             }
+//                            IconButton(
+//                                onClick = {
+//                                    isFavorite = !isFavorite
+//                                    viewModel.onEvent(AddEditNoteEvent.ChangeIsFavorite(isFavorite))
+//                                }
+//                            ) {
+//                                Icon(
+//                                    imageVector = if (viewModel.noteIsFavorite.value)
+//                                        ImageVector.vectorResource(R.drawable.fav_note_selected)
+//                                    else ImageVector.vectorResource(R.drawable.fav_note_unselected),
+//                                    tint = Color.Unspecified,
+//                                    contentDescription = stringResource(R.string.mark_note_as_favorite)
+//                                )
+//                            }
 
                         }
                     )
@@ -255,11 +275,7 @@ fun BookContentScreen(
 
                                                                     val highLightBuilder =
                                                                         Highlights.Builder()
-                                                                            .addRange(
-                                                                                yellowPaint,
-                                                                                start,
-                                                                                end
-                                                                            )
+                                                                            .addRange(yellowPaint, start, end)
                                                                     val highlights =
                                                                         highLightBuilder.build()
                                                                     Log.d(
@@ -272,10 +288,7 @@ fun BookContentScreen(
                                                                         "BookContentScreen",
                                                                         "saving the highlight to db from {$start} to {$end}"
                                                                     )
-                                                                    viewModel.addHighlight(
-                                                                        start,
-                                                                        end
-                                                                    )
+                                                                    viewModel.addHighlight(start, end)
                                                                     return true
                                                                 }
                                                             }
@@ -285,12 +298,25 @@ fun BookContentScreen(
                                                             }
 
                                                             R.id.action_bookmark -> {
-                                                                // action
-//                                                val start = textView.selectionStart
-//                                                val end = textView.selectionEnd
-//                                                if (start != end) {
-//                                                    val bookmark = textView.text.subSequence(start, end).toString()
-//                                                    viewModel.addBookmark(bookmark)
+                                                                val start = textView.selectionStart
+                                                                val end = textView.selectionEnd
+
+                                                                if (start != end) {
+                                                                    // Check if the selected text range is already bookmarked
+                                                                    val existingBookmark = viewModel.bookBookmarks.value?.firstOrNull { bookmark ->
+                                                                        bookmark.start == start && bookmark.end == end
+                                                                    }
+
+                                                                    if (existingBookmark == null) {
+                                                                        // Create a new bookmark and insert it into the database
+                                                                        viewModel.addBookmark(start, end)
+                                                                        // Provide feedback to the user (e.g., toast message)
+                                                                        showToast(context = context,"Bookmark added successfully!")
+                                                                    } else {
+                                                                        // The selected text range is already bookmarked
+                                                                        showToast(context = context,"This text is already bookmarked.")
+                                                                    }
+                                                                }
                                                                 return true
                                                             }
                                                         }
@@ -334,5 +360,8 @@ fun BookContentScreen(
             }
         }
     )
+}
+fun showToast(context: Context, msg: String) {
+    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
 }
 

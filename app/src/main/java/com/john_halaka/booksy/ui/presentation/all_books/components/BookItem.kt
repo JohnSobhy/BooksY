@@ -20,7 +20,8 @@ import com.john_halaka.booksy.ui.Screen
 @Composable
 fun BookItem(
     book: Book,
-    navController:NavController
+    navController:NavController,
+    modifier: Modifier
 ) {
     val onClick = {
         navController.navigate(
@@ -28,8 +29,7 @@ fun BookItem(
         )
     }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .padding(16.dp)
             .clickable (
                 onClick = onClick

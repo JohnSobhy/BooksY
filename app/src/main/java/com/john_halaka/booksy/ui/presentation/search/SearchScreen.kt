@@ -7,9 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -36,7 +41,7 @@ fun SearchScreen(
 ) {
     val searchQuery = remember { mutableStateOf(TextFieldValue()) }
     val searchResults by viewModel.searchResults.observeAsState(emptyList())
-    val onValueChange = { newValue: TextFieldValue ->
+    val onValueChange = { newValue:TextFieldValue ->
         searchQuery.value = newValue
         viewModel.searchBooks(newValue.text)
     }
@@ -45,13 +50,13 @@ fun SearchScreen(
         TextField(
             value = searchQuery.value,
             onValueChange = onValueChange,
-            label = { Text(text = stringResource(id = R.string.search)) },
+            label = { Text(text = stringResource(id = R.string.search))},
             trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(id = R.string.search)
-                )
-            },
+                          Icon(
+                              imageVector = Icons.Default.Search,
+                              contentDescription = stringResource(id = R.string.search)
+                          )
+                           },
 
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
@@ -61,13 +66,19 @@ fun SearchScreen(
 
 
             items(searchResults) { result ->
-                Row(
+                Row (
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(5f)
-                ) {
+                ){
                     val book by viewModel.getOriginalBook(result.book).observeAsState()
                     book?.let {
+                        BookItem(
+                            book = it,
+                            navController = navController,
+                            modifier = Modifier.weight(2f)
+                        )
+
                         Text(
                             text = context.getString(R.string.text, result.snippet),
                             modifier = Modifier
@@ -75,14 +86,8 @@ fun SearchScreen(
                                 .padding(16.dp),
                             fontSize = 20.sp
                         )
-
-                        BookItem(
-                            book = it,
-                            navController = navController,
-                            modifier = Modifier.weight(2f)
-                        )
                     }
-                }
+                    }
 
             }
         }

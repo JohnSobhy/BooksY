@@ -16,6 +16,13 @@ import com.john_halaka.booksy.feature_book.use_cases.GetBookById
 import com.john_halaka.booksy.feature_book.use_cases.GetOriginalBook
 import com.john_halaka.booksy.feature_book.use_cases.InsertAllBooks
 import com.john_halaka.booksy.feature_book.use_cases.SearchBooks
+import com.john_halaka.booksy.feature_bookmark.data.repository.BookmarkRepositoryImpl
+import com.john_halaka.booksy.feature_bookmark.domain.repository.BookmarkRepository
+import com.john_halaka.booksy.feature_bookmark.use_cases.AddBookmark
+import com.john_halaka.booksy.feature_bookmark.use_cases.BookmarkUseCases
+import com.john_halaka.booksy.feature_bookmark.use_cases.DeleteBookmark
+import com.john_halaka.booksy.feature_bookmark.use_cases.GetAllBookmarks
+import com.john_halaka.booksy.feature_bookmark.use_cases.GetBookmarksForBook
 import com.john_halaka.booksy.feature_highlight.data.data_source.HighlightDao
 import com.john_halaka.booksy.feature_highlight.data.repository.HighlightRepositoryImpl
 import com.john_halaka.booksy.feature_highlight.domain.repository.HighlightRepository
@@ -77,6 +84,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideBookmarkRepository(db: BooksYDatabase) : BookmarkRepository{
+        return BookmarkRepositoryImpl(db.bookmarkDao)
+    }
+
+    @Provides
+    @Singleton
     fun provideContext(application: Application) : Context = application.applicationContext
 
     @Provides
@@ -88,6 +101,17 @@ object AppModule {
             insertAllBooks = InsertAllBooks(repository),
             searchBooks = SearchBooks(repository),
             getOriginalBook = GetOriginalBook(repository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideBookmarkUseCases(repository: BookmarkRepository): BookmarkUseCases {
+        return BookmarkUseCases(
+            getAllBookmarks = GetAllBookmarks(repository),
+            getBookmarksForBook = GetBookmarksForBook(repository),
+            addBookmark = AddBookmark(repository),
+            deleteBookmark = DeleteBookmark(repository)
         )
     }
 

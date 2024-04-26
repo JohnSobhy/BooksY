@@ -7,13 +7,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide.init
 import com.john_halaka.booksy.feature_book.data.PreferencesManager
 import com.john_halaka.booksy.feature_book.domain.model.Book
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
+import com.john_halaka.booksy.feature_bookmark.domain.model.Bookmark
+import com.john_halaka.booksy.feature_bookmark.use_cases.BookmarkUseCases
 import com.john_halaka.booksy.feature_highlight.domain.model.Highlight
 import com.john_halaka.booksy.feature_highlight.use_cases.HighlightUseCases
 import com.john_halaka.booksy.feature_search.domain.model.BookFts
 import com.john_halaka.booksy.feature_search.domain.model.BookWithSnippet
+import com.john_halaka.booksy.ui.presentation.book_content.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,9 +29,8 @@ class BookContentViewModel @Inject constructor(
     private val bookUseCases: BookUseCases,
     private val highlightUseCases: HighlightUseCases,
     private val preferencesManager: PreferencesManager,
-
+    private val bookmarkUseCases: BookmarkUseCases,
     savedStateHandle: SavedStateHandle
-
 ) : ViewModel() {
 
     private val _searchResults = MutableLiveData<List<BookWithSnippet>>()
@@ -50,6 +53,8 @@ class BookContentViewModel @Inject constructor(
     val openedBook = _openedBook
     private val _bookHighlights = MutableLiveData<List<Highlight>>()
     val bookHighlights = _bookHighlights
+    private val _bookBookmarks = MutableLiveData<List<Bookmark>>()
+    val bookBookmarks = _bookBookmarks
 
     init {
         savedStateHandle.get<Int>("bookId")?.let { bookId ->
@@ -58,11 +63,14 @@ class BookContentViewModel @Inject constructor(
                     bookUseCases.getBookById(bookId).also { book ->
                         _openedBook.value = book
                         getHighlightsForBook(openedBook.value.id)
+                        getBookmarksForBook(openedBook.value.id)
                     }
                 }
             }
         }
     }
+
+
 
     fun saveFontSize(fontSize: Float) {
         preferencesManager.saveFontSize(fontSize)
@@ -82,6 +90,29 @@ class BookContentViewModel @Inject constructor(
             Log.d("BookContentViewModel", "getHighlightsForBook is invoked")
         }
     }
+    fun addBookmark(start: Int, end: Int) {
+        val bookId = _openedBook.value.id
+        val newBookmark = Bookmark(bookId = bookId, start = start, end = end)
+
+        viewModelScope.launch {
+            bookmarkUseCases.addBookmark(newBookmark)
+            // Fetch the updated bookmarks for the current book
+            getBookmarksForBook(bookId)
+        }
+    }
+
+    fun removeBookmark(start: Int, end: Int) {
+        val bookId = _openedBook.value.id
+        val bookmarkToRemove = Bookmark(bookId = bookId, start = start, end = end)
+
+        viewModelScope.launch {
+            bookmarkUseCases.deleteBookmark(bookmarkToRemove)
+            // Fetch the updated bookmarks for the current book
+            getBookmarksForBook(bookId)
+
+        }
+    }
+
 
     fun removeHighlight(start: Int, end: Int) {
         val bookId = _openedBook.value.id
@@ -97,6 +128,13 @@ class BookContentViewModel @Inject constructor(
             highlightUseCases.getBookHighlights(bookId).collect { bookHighlights ->
                 _bookHighlights.value = bookHighlights
 
+            }
+        }
+    }
+    private fun getBookmarksForBook(bookId: Int) {
+        viewModelScope.launch {
+            bookmarkUseCases.getBookmarksForBook(bookId).collect { bookmarks->
+                _bookBookmarks.value = bookmarks
             }
         }
     }

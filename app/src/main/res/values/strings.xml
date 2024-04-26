@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">BooksY</string>
+    <string name="menu">Menu</string>
+    <string name="profile">Profile</string>
+    <string name="home">Home</string>
+    <string name="favorites">Favorites</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="search">Search</string>
+    <string name="settings">Settings</string>
+    <string name="adjust_font_size">Adjust font size</string>
+    <string name="text">Text: %1$s</string>
 </resources>

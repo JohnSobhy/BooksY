@@ -13,6 +13,9 @@ import com.john_halaka.booksy.feature_book.network.JsonFetcher
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
 import com.john_halaka.booksy.feature_book.use_cases.GetAllBooks
 import com.john_halaka.booksy.feature_book.use_cases.GetBookById
+import com.john_halaka.booksy.feature_book.use_cases.GetOriginalBook
+import com.john_halaka.booksy.feature_book.use_cases.InsertAllBooks
+import com.john_halaka.booksy.feature_book.use_cases.SearchBooks
 import com.john_halaka.booksy.feature_highlight.data.data_source.HighlightDao
 import com.john_halaka.booksy.feature_highlight.data.repository.HighlightRepositoryImpl
 import com.john_halaka.booksy.feature_highlight.domain.repository.HighlightRepository
@@ -20,6 +23,7 @@ import com.john_halaka.booksy.feature_highlight.use_cases.AddHighlight
 import com.john_halaka.booksy.feature_highlight.use_cases.GetBookHighlights
 import com.john_halaka.booksy.feature_highlight.use_cases.HighlightUseCases
 import com.john_halaka.booksy.feature_highlight.use_cases.RemoveHighlight
+import com.john_halaka.booksy.feature_search.data.data_source.BookFtsDao
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -59,11 +63,10 @@ object AppModule {
     @Singleton
     fun provideBookRepository(
         db: BooksYDatabase,
-        context: Context,
-        imageFetcher: ImageFetcher,
-        jsonFetcher: JsonFetcher
+        jsonFetcher: JsonFetcher,
+
     ): BookRepository{
-        return BookRepositoryImpl(db.bookDao, jsonFetcher)
+        return BookRepositoryImpl(db.bookDao, db.bookFtsDao, jsonFetcher)
     }
 
     @Provides
@@ -81,7 +84,10 @@ object AppModule {
     fun provideBookUseCases(repository: BookRepository): BookUseCases {
         return BookUseCases(
             getAllBooks = GetAllBooks(repository),
-            getBookById = GetBookById(repository)
+            getBookById = GetBookById(repository),
+            insertAllBooks = InsertAllBooks(repository),
+            searchBooks = SearchBooks(repository),
+            getOriginalBook = GetOriginalBook(repository)
         )
     }
 

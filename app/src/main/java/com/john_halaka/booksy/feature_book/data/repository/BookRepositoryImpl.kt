@@ -7,12 +7,15 @@ import com.john_halaka.booksy.feature_book.domain.model.Book
 import com.john_halaka.booksy.feature_book.domain.repository.BookRepository
 import com.john_halaka.booksy.feature_book.network.JsonFetcher
 import com.john_halaka.booksy.feature_book.network.jsonUrl
+import com.john_halaka.booksy.feature_search.data.data_source.BookFtsDao
+import com.john_halaka.booksy.feature_search.domain.model.BookFts
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
 
 class BookRepositoryImpl (
     private val bookDao: BookDao,
+    private val bookFtsDao: BookFtsDao,
     private val jsonFetcher: JsonFetcher
 ) : BookRepository {
 
@@ -31,11 +34,6 @@ class BookRepositoryImpl (
             booksFromDb.none { dbBook -> dbBook.id == jsonBook.id }
         }
 
-        //if you need to update the existing books
-//        val existingBooks = booksFromJson.filter { jsonBook ->
-//            booksFromDb.any { dbBook -> dbBook.id == jsonBook.id }
-//        }
-
         if (newBooks.isNotEmpty()) {
             try {
                 bookDao.insertAll(booksFromJson)
@@ -43,26 +41,42 @@ class BookRepositoryImpl (
             } catch (e: Exception) {
                 Log.e("BookRepositoryImpl", "Error inserting books into database", e)
             }
+            try {
+                val booksFts: List<BookFts> = booksFromJson.map {book->
+                    BookFts(
+                        book.id,
+                        book.title,
+                        book.content
+                    )
+                }
+                bookFtsDao.insertFts(booksFts)
+                Log.d("BookRepositoryImpl", "Inserted books into fts")
+            } catch (e: Exception) {
+                Log.e("BookRepositoryImpl", "Error inserting books into fts", e)
+            }
         }
-
-        //update the books here
-//        if (existingBooks.isNotEmpty()) {
-//            try {
-//                existingBooks.forEach { bookDao.updateBookContent(it) }
-//                Log.d("BookRepositoryImpl", "Updated existing books in database")
-//            } catch (e: Exception) {
-//                Log.e("BookRepositoryImpl", "Error updating existing books in database", e)
-//            }
-//        }
             return bookDao.getAll()
         }
 
+    override suspend fun insertAll(books: List<Book>) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getBookById(id: Int): Book {
-        return bookDao.loadBookById(id)
+        return bookDao.getBookById(id)
+    }
+
+    override suspend fun getOriginalBook(bookFts: BookFts): Book {
+        return bookDao.getOriginalBook(bookFts)
     }
 
     override suspend fun updateBookContent(book: Book) {
         bookDao.updateBookContent(book)
+    }
+
+    override suspend fun searchBooks(query: String): Flow<List<BookFts>> {
+        val booksFts= bookFtsDao.searchBooks(query)
+        return booksFts
     }
 
     private fun parseJson(json: String?): List<Book> {

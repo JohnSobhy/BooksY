@@ -19,6 +19,7 @@ import com.john_halaka.booksy.ui.presentation.all_books.components.BookItem
 fun AllBooksScreen(
     navController: NavController,
     viewModel: BookViewModel = hiltViewModel(),
+    modifier: Modifier
 ) {
     val state by viewModel.state
     val booksList = state.allBooks
@@ -30,7 +31,8 @@ fun AllBooksScreen(
         modifier = Modifier.padding(16.dp)
     ) {
         items(booksList) { book ->
-            BookItem(book, navController)
+            BookItem(book, navController, modifier)
+
         }
     }
 }

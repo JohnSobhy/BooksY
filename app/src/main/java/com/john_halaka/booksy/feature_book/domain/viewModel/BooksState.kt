@@ -4,7 +4,7 @@ import com.john_halaka.booksy.feature_book.domain.model.Book
 
 data class BooksState(
     val allBooks: List<Book> = emptyList(),
-    val favoriteBook: List<Book> = emptyList(),
+    val favoriteBooks: List<Book> = emptyList(),
     val book: Book = Book(
         id = -1,
         title = "",

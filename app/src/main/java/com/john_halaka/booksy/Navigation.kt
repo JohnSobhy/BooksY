@@ -46,6 +46,7 @@ import com.john_halaka.booksy.ui.presentation.book_content.BookContentScreen
 import com.john_halaka.booksy.ui.presentation.bookmarks.BookmarksScreen
 import com.john_halaka.booksy.ui.presentation.home.HomeScreen
 import com.john_halaka.booksy.ui.presentation.search.SearchScreen
+import com.john_halaka.booksy.ui.presentation.settings.SettingsScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -61,7 +62,7 @@ fun Navigation() {
         composable(
             route = Screen.HomeScreen.route
         ) {
-            HomeScreen(navController = navController, context = LocalContext.current)
+            HomeScreen(navController = navController)
         }
         composable(
             route = Screen.BookContentScreen.route + "?bookId={bookId}",
@@ -74,27 +75,22 @@ fun Navigation() {
                 }
             )
         ) {
-            BookContentScreen(navController = navController, context = LocalContext.current)
+            BookContentScreen(navController = navController)
         }
         composable(
             route = Screen.BookmarksScreen.route
         ) {
-            BookmarksScreen(navController, context = LocalContext.current)
+            BookmarksScreen(navController)
         }
         composable(
             route = Screen.SearchScreen.route
         ) {
-            SearchScreen(navController = navController, context = LocalContext.current)
-        }
-        composable(
-            route = Screen.FavoriteBooksScreen.route
-        ) {
-
+            SearchScreen(navController = navController)
         }
         composable(
             route = Screen.SettingsScreen.route
         ) {
-
+            SettingsScreen(navController)
         }
     }
 }
@@ -116,12 +112,6 @@ fun NavigationDrawer(
             route = Screen.HomeScreen.route
         ),
 
-        NavigationItem(
-            title = stringResource(R.string.favorites),
-            selectedIcon = Icons.Default.Favorite,
-            unselectedIcon = Icons.Default.FavoriteBorder,
-            route = Screen.FavoriteBooksScreen.route
-        ),
         NavigationItem(
             title = stringResource(R.string.bookmarks),
             selectedIcon = Icons.Default.Star,
@@ -160,7 +150,6 @@ fun NavigationDrawer(
                                 contentDescription = navigationItem.title
                             )
                         },
-                        //   badge = {},
                         modifier = Modifier
                             .padding(NavigationDrawerItemDefaults.ItemPadding)
                             .width(intrinsicSize = IntrinsicSize.Min)

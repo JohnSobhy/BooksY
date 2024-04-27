@@ -107,5 +107,9 @@ dependencies {
     implementation (libs.androidx.runtime)
     implementation (libs.androidx.runtime.livedata)
 
+    //Downloadable fonts
+    implementation ("androidx.compose.ui:ui-text-google-fonts:1.6.6")
+
+
 
 }

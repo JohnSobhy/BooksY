@@ -2,12 +2,12 @@ package com.john_halaka.booksy.feature_book.domain.viewModel
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide.init
 import com.john_halaka.booksy.feature_book.data.PreferencesManager
 import com.john_halaka.booksy.feature_book.domain.model.Book
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
@@ -17,10 +17,12 @@ import com.john_halaka.booksy.feature_highlight.domain.model.Highlight
 import com.john_halaka.booksy.feature_highlight.use_cases.HighlightUseCases
 import com.john_halaka.booksy.feature_search.domain.model.BookFts
 import com.john_halaka.booksy.feature_search.domain.model.BookWithSnippet
-import com.john_halaka.booksy.ui.presentation.book_content.showToast
+import com.john_halaka.booksy.ui.presentation.book_content.BookContentEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,8 +38,20 @@ class BookContentViewModel @Inject constructor(
     private val _searchResults = MutableLiveData<List<BookWithSnippet>>()
     val searchResults = _searchResults
 
-    private val _fontSize = MutableStateFlow(preferencesManager.loadFontSize())
+    private val _fontSize = MutableStateFlow(preferencesManager.getFontSize())
     val fontSize: StateFlow<Float> = _fontSize
+
+    private val _fontColor = MutableStateFlow(preferencesManager.getFontColor())
+    val fontColor = _fontColor
+
+    private val _fontWeight = MutableStateFlow(preferencesManager.getFontWeight())
+    val fontWeight = _fontWeight
+
+    private val _backgroundColor = MutableStateFlow(preferencesManager.getBackgroundColor())
+    val backgroundColor = _backgroundColor
+
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
     private val _openedBook = mutableStateOf(
         Book(
@@ -71,10 +85,32 @@ class BookContentViewModel @Inject constructor(
     }
 
 
+ fun onEvent(event: BookContentEvent) {
+        Log.d("AddEditNoteViewModel", "onEvent: $event")
+        when (event) {
+            is BookContentEvent.BackButtonClick ->{
+                viewModelScope.launch {
+                    _eventFlow.emit(UiEvent.NavigateBack)
+                }
 
+            }
+        }
+        }
     fun saveFontSize(fontSize: Float) {
-        preferencesManager.saveFontSize(fontSize)
+        preferencesManager.setFontSize(fontSize)
         _fontSize.value = fontSize
+    }
+    fun saveFontColor(color: Int) {
+        preferencesManager.setFontColor(color)
+        _fontColor.value = color
+    }
+    fun saveFontWeight(fontWeight: Int) {
+        preferencesManager.setFontWeight(fontWeight)
+        _fontWeight.value = fontWeight
+    }
+    fun saveBackgroundColor(backgroundColor: Int) {
+        preferencesManager.setBackgroundColor(backgroundColor)
+        _backgroundColor.value = backgroundColor
     }
 
     fun addHighlight(start: Int, end: Int) {
@@ -170,6 +206,10 @@ class BookContentViewModel @Inject constructor(
             }
         }
     }
+    sealed class UiEvent {
+        object NavigateBack : UiEvent()
+    }
 }
+
 
 

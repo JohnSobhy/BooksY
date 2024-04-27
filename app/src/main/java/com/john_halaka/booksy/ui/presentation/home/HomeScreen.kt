@@ -42,7 +42,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen (
     navController: NavController,
-    context: Context) {
+)
+    {
 
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

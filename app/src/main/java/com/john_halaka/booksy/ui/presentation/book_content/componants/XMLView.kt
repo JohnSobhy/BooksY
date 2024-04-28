@@ -7,6 +7,7 @@ import android.graphics.Typeface
 import android.text.Spannable
 
 import android.text.style.BackgroundColorSpan
+import android.util.Log
 import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.Menu
@@ -106,7 +107,10 @@ fun XMLView(
                                         textView.selectionStart,
                                         textView.selectionEnd
                                     )
+                                Log.d("BookContentScreen", "Selected text length: ${selectedText.length}")
+
                                 val truncatedText = selectedText.take(150)
+                                Log.d("BookContentScreen", "truncated text length: ${truncatedText.length}")
                                 // Handle copying or sharing the truncatedText
                                 copyTextWithSignature(truncatedText, context)
 
@@ -219,6 +223,7 @@ private fun updateTextViewStyle(
 fun copyTextWithSignature(text: CharSequence, context: Context) {
     val signature = " ©BooksY"
     val modifiedText = "$text$signature"
+    Log.d("BookContentScreen", "the copy function is called with text length ${text.length}")
 
     // Set the modified text as the primary clip
     val clipboardManager =
@@ -226,10 +231,12 @@ fun copyTextWithSignature(text: CharSequence, context: Context) {
     val clipData = ClipData.newPlainText("Modified Text", modifiedText)
     clipboardManager.setPrimaryClip(clipData)
 
-    // Show a toast if the selected text exceeds 150 characters
-    if (text.length > 150) {
-        showToast(context, context.getString(R.string.cannot_copy_more_than_150_characters))
-    } else {
+     // Show a toast if the selected text exceeds 150 characters
+    if (text.length < 150) {
         showToast(context, context.getString(R.string.text_copied_to_clipboard))
+    }else {
+        showToast(context, context.getString(R.string.cannot_copy_more_than_150_characters))
     }
+
+
 }

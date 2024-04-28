@@ -3,18 +3,15 @@
 
     <item
         android:id="@+id/action_highlight"
-        android:title="Highlight"
-
+        android:title="@string/highlight"
         android:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_bookmark"
-        android:title="Bookmark"
-
+        android:title="@string/bookmark"
         android:showAsAction="ifRoom"/>
 
-    <item
-        android:id="@+id/action_remove_highlight"
-        android:title="Remove"
-
-        android:showAsAction="ifRoom"/>
+<!--    <item-->
+<!--        android:id="@+id/action_remove_highlight"-->
+<!--        android:title="@string/remove"-->
+<!--        android:showAsAction="ifRoom"/>-->
 </menu>

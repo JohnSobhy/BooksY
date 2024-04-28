@@ -1,12 +1,14 @@
 package com.john_halaka.booksy.ui.presentation.bookmarks
 
-import android.content.Context
-import android.widget.Toast
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Box
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.john_halaka.booksy.R
 import com.john_halaka.booksy.feature_book.domain.viewModel.BookViewModel
 import com.john_halaka.booksy.feature_bookmark.domain.model.Bookmark
 import com.john_halaka.booksy.ui.presentation.all_books.components.BookItem
@@ -65,9 +68,12 @@ fun BookmarksScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Row {
-                        Icon(Icons.Default.Star, contentDescription = "Bookmarks icon")
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = stringResource(R.string.bookmarks_icon)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Bookmarks")
+                        Text(text = stringResource(id = R.string.bookmarks))
                     }
                 },
                 navigationIcon = {
@@ -77,7 +83,7 @@ fun BookmarksScreen(
                     {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Navigate back"
+                            contentDescription = stringResource(R.string.navigate_back)
                         )
                     }
                 }
@@ -107,7 +113,7 @@ fun BookmarksScreen(
                         CircularProgressIndicator(color = Color.Blue)
                     } else
                         Text(
-                            text = "You have no bookmarks yet.",
+                            text = stringResource(R.string.you_have_no_bookmarks_yet),
                             textAlign = TextAlign.Center,
                             style = TextStyle(fontWeight = FontWeight.Bold)
                         )
@@ -162,7 +168,7 @@ fun BookmarksScreen(
                                                 ) {
                                                     Icon(
                                                         Icons.Default.Delete,
-                                                        contentDescription = "Delete Bookmark"
+                                                        contentDescription = stringResource(R.string.delete_bookmark)
                                                     )
 
                                                 }
@@ -179,21 +185,30 @@ fun BookmarksScreen(
         if (showDeleteBookmarkDialog) {
             AlertDialog(
                 onDismissRequest = { setShowDeleteBookmarkDialog(false) },
-                title = { Text("Warning") },
-                text = { Text("Delete bookmark?") },
+                title = { Text(stringResource(R.string.warning)) },
+                text = { Text(stringResource(R.string.delete_bookmark)) },
                 confirmButton = {
-                    Button(onClick = {
-                        bookmarkToDelete?.let { viewModel.removeBookmark(it) }
-                        setShowDeleteBookmarkDialog(false)
-                        setBookmarkToDelete(null)
-                        showToast(context = context, "The bookmark is deleted")
-                    }) {
-                        Text("Confirm")
+                    Button(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            bookmarkToDelete?.let { viewModel.removeBookmark(it) }
+                            setShowDeleteBookmarkDialog(false)
+                            setBookmarkToDelete(null)
+                            showToast(
+                                context = context,
+                                context.getString(R.string.the_bookmark_is_deleted)
+                            )
+                        }) {
+                        Text(stringResource(R.string.confirm))
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { setShowDeleteBookmarkDialog(false) }) {
-                        Text("Cancel")
+                    Button(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            setShowDeleteBookmarkDialog(false)
+                        }) {
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )

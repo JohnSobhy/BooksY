@@ -3,7 +3,6 @@ package com.john_halaka.booksy.feature_book.domain.viewModel
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +11,6 @@ import com.john_halaka.booksy.feature_book.domain.model.Book
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
 import com.john_halaka.booksy.feature_bookmark.domain.model.Bookmark
 import com.john_halaka.booksy.feature_bookmark.use_cases.BookmarkUseCases
-import com.john_halaka.booksy.feature_search.domain.model.BookFts
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
@@ -24,7 +22,7 @@ import javax.inject.Inject
 class BookViewModel @Inject constructor(
     private val bookUseCases: BookUseCases,
     private val bookmarkUseCases: BookmarkUseCases
-) : ViewModel(){
+) : ViewModel() {
     private val _state = mutableStateOf(BooksState())
     val state: State<BooksState> = _state
 
@@ -40,10 +38,6 @@ class BookViewModel @Inject constructor(
     }
 
 
-
-
-
-
     fun getBookById(bookId: Int): LiveData<Book> {
         val result = MutableLiveData<Book>()
         viewModelScope.launch {
@@ -51,6 +45,7 @@ class BookViewModel @Inject constructor(
         }
         return result
     }
+
     fun getTextSnippetForBookmark(bookmark: Bookmark): LiveData<String> {
         val result = MutableLiveData<String>()
         viewModelScope.launch {
@@ -63,6 +58,7 @@ class BookViewModel @Inject constructor(
         }
         return result
     }
+
     fun removeBookmark(bookmark: Bookmark) {
         viewModelScope.launch {
             Log.d("BookViewModel", "removeBookmark is called $bookmark")
@@ -72,37 +68,35 @@ class BookViewModel @Inject constructor(
     }
 
 
-            private suspend fun getAllBooks(){
+    private suspend fun getAllBooks() {
         getAllBooksJob?.cancel()
 
         try {
-            getAllBooksJob = bookUseCases.getAllBooks().
-            onEach {books->
+            getAllBooksJob = bookUseCases.getAllBooks().onEach { books ->
                 _state.value = state.value.copy(
                     allBooks = books
                 )
             }
                 .launchIn(viewModelScope)
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("BookViewModel", "Error getting Books: ${e.message}")
         }
     }
 
-    private suspend fun getAllBookmarks(){
+    private fun getAllBookmarks() {
         getAllBookmarksJob?.cancel()
 
         try {
-            Log.e("BookViewModel", "getBookmarks is called")
-            getAllBookmarksJob = bookmarkUseCases.getAllBookmarks().
-            onEach {bookmarks->
+            Log.d("BookViewModel", "getBookmarks is called")
+            getAllBookmarksJob = bookmarkUseCases.getAllBookmarks().onEach { bookmarks ->
                 _state.value = state.value.copy(
                     bookmarks = bookmarks
                 )
-                Log.e("BookViewModel", "bookmarks are $bookmarks ")
+                Log.d("BookViewModel", "bookmarks are $bookmarks ")
             }
                 .launchIn(viewModelScope)
 
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("BookViewModel", "Error getting Bookmarks: ${e.message}")
         }
     }

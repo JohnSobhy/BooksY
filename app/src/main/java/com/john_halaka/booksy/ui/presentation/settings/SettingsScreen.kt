@@ -1,6 +1,5 @@
 package com.john_halaka.booksy.ui.presentation.settings
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,11 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,18 +39,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.john_halaka.booksy.R
-import com.john_halaka.booksy.feature_book.data.PreferencesManager
 import com.john_halaka.booksy.feature_book.domain.viewModel.BookContentViewModel
 import com.john_halaka.booksy.ui.presentation.book_content.BookContentEvent
+import com.john_halaka.booksy.ui.presentation.book_content.showToast
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,9 +73,12 @@ fun SettingsScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Row {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings icon")
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings_icon)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Settings")
+                        Text(text = stringResource(id = R.string.settings))
                     }
                 },
                 navigationIcon = {
@@ -90,7 +88,7 @@ fun SettingsScreen(
                     {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Navigate back"
+                            contentDescription = stringResource(id = R.string.navigate_back)
                         )
                     }
                 }
@@ -120,7 +118,11 @@ fun FontSizeSetting(
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
-        Text("Font Size", fontWeight = FontWeight.Bold)
+        Text(
+            stringResource(id = R.string.font_size),
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp
+        )
         Slider(
             value = fontSize,
             onValueChange = { newFontSize ->
@@ -129,9 +131,10 @@ fun FontSizeSetting(
             valueRange = 12f..42f,
             steps = 24
         )
-        Text("Current Font Size: ${fontSize.toInt()} sp")
+        Text(stringResource(R.string.current_font_size_sp, fontSize.toInt()))
     }
 }
+
 @Composable
 fun FontColorSetting(
     viewModel: BookContentViewModel
@@ -151,7 +154,7 @@ fun FontColorSetting(
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
-        Text("Font Color", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.font_color), fontWeight = FontWeight.Bold, fontSize = 24.sp)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -169,6 +172,7 @@ fun FontColorSetting(
         }
     }
 }
+
 @Composable
 fun ColorOptionButton(
     color: Color,
@@ -210,7 +214,11 @@ fun BackgroundColorSetting(
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
-        Text("Background Color", fontWeight = FontWeight.Bold)
+        Text(
+            stringResource(R.string.background_color),
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -232,7 +240,7 @@ fun BackgroundColorSetting(
 fun FontWeightSetting(
     viewModel: BookContentViewModel
 ) {
-
+    val context = LocalContext.current
     val savedFontWeight by viewModel.fontWeight.collectAsState()
     var selectedFontWeight: FontWeight by remember { mutableStateOf(FontWeight(savedFontWeight)) }
     val fontSize by viewModel.fontSize.collectAsState()
@@ -243,34 +251,39 @@ fun FontWeightSetting(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text("Font Weight Settings", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(
+            stringResource(R.string.font_weight_settings),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Font weight options
 
         FontWeightOption(
-            label = "Normal",
+            label = stringResource(R.string.normal),
             fontWeight = FontWeight.Normal,
-            selectedFontWeight= selectedFontWeight,
+            selectedFontWeight = selectedFontWeight,
             onFontWeightSelected = { selectedFontWeight = it }
         )
         FontWeightOption(
-            label = "Bold",
+            label = stringResource(R.string.bold),
             fontWeight = FontWeight.Bold,
-            selectedFontWeight= selectedFontWeight,
+            selectedFontWeight = selectedFontWeight,
             onFontWeightSelected = { selectedFontWeight = it }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Font weight preview
-        Box (
+        Box(
             Modifier
                 .fillMaxWidth()
-                .background(Color(backgroundColor))) {
+                .background(Color(backgroundColor))
+        ) {
             Text(
-                text = "Preview Text",
+                text = stringResource(R.string.preview_text),
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = selectedFontWeight,
                 color = Color(fontColor),
@@ -282,13 +295,17 @@ fun FontWeightSetting(
 
         // Save button
         Button(
-            onClick = { viewModel.saveFontWeight(selectedFontWeight.weight) },
+            onClick = {
+                viewModel.saveFontWeight(selectedFontWeight.weight)
+                showToast(context = context, context.getString(R.string.font_weight_saved))
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Save Font Weight")
+            Text(stringResource(R.string.save_font_weight), fontSize = 24.sp)
         }
     }
 }
+
 @Composable
 fun FontWeightOption(
     label: String,

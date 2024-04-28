@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BooksY</string>
+    <string name="profile">الملف الشخصي</string>
+    <string name="home">الصفحة الرئيسية</string>
+    <string name="favorites">المفضلة</string>
+    <string name="bookmarks">العلامات</string>
+    <string name="search">بحث</string>
+    <string name="settings">الضبط</string>
+    <string name="adjust_font_size">تغيير حجم الخط</string>
+    <string name="font_size">حجم الخط</string>
+    <string name="text">النص: %1$s</string>
+    <string name="menu">القائمة</string>
+    <string name="navigate_back">العودة للخلف</string>
+    <string name="ok">موافق</string>
+    <string name="bookmark_added_successfully">تم اضافة العلامة بنجاح</string>
+    <string name="this_text_is_already_bookmarked">تم وضع علامة علي هذا النص من قبل</string>
+    <string name="bookmarks_icon">ايقونة العلامات</string>
+    <string name="you_have_no_bookmarks_yet">ليس لديك علامات حتي الان</string>
+    <string name="delete_bookmark">حذف العلامة</string>
+    <string name="warning">تحذير</string>
+    <string name="the_bookmark_is_deleted">تم حذف العلامة</string>
+    <string name="confirm">تأكيد</string>
+    <string name="cancel">إلغاء</string>
+    <string name="settings_icon">ايقونة الضبط</string>
+    <string name="current_font_size_sp">الحجم الحالي للخط: %1$s sp</string>
+    <string name="font_color">لون الخط</string>
+    <string name="background_color">لون خلفية الكتاب</string>
+    <string name="font_weight_settings">ضبط نوع الخط</string>
+    <string name="preview_text">نص تجريبي</string>
+    <string name="save_font_weight">حفظ نوع الخط</string>
+    <string name="normal">عادي</string>
+    <string name="bold">غامق</string>
+    <string name="font_weight_saved">تم حفظ نوع الخط</string>
+    <string name="highlight">تظليل</string>
+    <string name="bookmark">وضع علامة</string>
+    <string name="remove">حذف التظليل</string>
+    <string name="cannot_copy_more_than_150_characters">لا يمكن نسخ اكتر من 150 حرف</string>
+    <string name="text_copied_to_clipboard">تم نسخ النص</string>
+</resources>

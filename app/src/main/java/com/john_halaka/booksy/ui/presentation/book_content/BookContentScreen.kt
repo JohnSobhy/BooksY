@@ -33,6 +33,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.john_halaka.booksy.R
+import com.john_halaka.booksy.feature_book.domain.model.Book
 import com.john_halaka.booksy.feature_book.domain.viewModel.BookContentViewModel
 import com.john_halaka.booksy.ui.presentation.book_content.componants.BookContent
 import kotlinx.coroutines.flow.collectLatest
@@ -46,7 +47,15 @@ fun BookContentScreen(
     navController: NavController,
 ) {
     val context = LocalContext.current
-    val book = viewModel.openedBook.value
+    val book = Book(
+        id = viewModel.state.value.bookId,
+        title = viewModel.state.value.bookTitle,
+        content = viewModel.state.value.bookContent,
+        category = viewModel.state.value.bookCategory,
+        author = viewModel.state.value.bookAuthor,
+        imageUrl = viewModel.state.value.imageUrl,
+        description = viewModel.state.value.bookDescription
+    )
     val fontSize by viewModel.fontSize.collectAsState()
     val fontColor by viewModel.fontColor.collectAsState()
     val fontWeight by viewModel.fontWeight.collectAsState()
@@ -88,7 +97,7 @@ fun BookContentScreen(
                     {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Navigate back"
+                            contentDescription = stringResource(R.string.navigate_back)
                         )
                     }
                 },
@@ -119,7 +128,7 @@ fun BookContentScreen(
         if (showFontSlider) {
             AlertDialog(
                 onDismissRequest = { setShowFontSlider(false) },
-                title = { Text("Adjust Font Size") },
+                title = { Text(stringResource(id = R.string.adjust_font_size)) },
                 text = {
                     Slider(
                         value = fontSize,
@@ -130,7 +139,7 @@ fun BookContentScreen(
                 },
                 confirmButton = {
                     Button(onClick = { setShowFontSlider(false) }) {
-                        Text("OK")
+                        Text(stringResource(R.string.ok))
                     }
                 }
             )

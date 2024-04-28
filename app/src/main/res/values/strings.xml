@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">BooksY</string>
-    <string name="menu">Menu</string>
+    <string name="app_name" translatable="false">BooksY</string>
     <string name="profile">Profile</string>
     <string name="home">Home</string>
     <string name="favorites">Favorites</string>
@@ -8,5 +7,33 @@
     <string name="search">Search</string>
     <string name="settings">Settings</string>
     <string name="adjust_font_size">Adjust font size</string>
+    <string name="font_size"> Font size</string>
     <string name="text">Text: %1$s</string>
+    <string name="menu">Menu</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="ok">OK</string>
+    <string name="bookmark_added_successfully">Bookmark added successfully!</string>
+    <string name="this_text_is_already_bookmarked">This text is already bookmarked.</string>
+    <string name="bookmarks_icon">Bookmarks icon</string>
+    <string name="you_have_no_bookmarks_yet">You have no bookmarks yet.</string>
+    <string name="delete_bookmark">Delete Bookmark</string>
+    <string name="warning">Warning</string>
+    <string name="the_bookmark_is_deleted">The bookmark is deleted</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="settings_icon">Settings icon</string>
+    <string name="current_font_size_sp">Current Font Size: %1$s sp</string>
+    <string name="font_color">Font Color</string>
+    <string name="background_color">Background Color</string>
+    <string name="font_weight_settings">Font Weight Settings</string>
+    <string name="preview_text">Preview Text</string>
+    <string name="save_font_weight">Save Font Weight</string>
+    <string name="normal">Normal</string>
+    <string name="bold">Bold</string>
+    <string name="font_weight_saved">Font weight saved</string>
+    <string name="highlight">Highlight</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="remove">Remove</string>
+    <string name="cannot_copy_more_than_150_characters">Cannot copy more than 150 characters</string>
+    <string name="text_copied_to_clipboard">Text copied to clipboard</string>
 </resources>

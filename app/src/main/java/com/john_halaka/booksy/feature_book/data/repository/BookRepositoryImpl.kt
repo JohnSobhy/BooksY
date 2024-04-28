@@ -59,7 +59,7 @@ class BookRepositoryImpl (
         }
 
     override suspend fun insertAll(books: List<Book>) {
-        TODO("Not yet implemented")
+        // implemented in the getAll
     }
 
     override suspend fun getBookById(id: Int): Book {
@@ -75,8 +75,7 @@ class BookRepositoryImpl (
     }
 
     override suspend fun searchBooks(query: String): Flow<List<BookFts>> {
-        val booksFts= bookFtsDao.searchBooks(query)
-        return booksFts
+        return bookFtsDao.searchBooks(query)
     }
 
     private fun parseJson(json: String?): List<Book> {

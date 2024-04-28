@@ -1,8 +1,13 @@
 package com.john_halaka.booksy.feature_book.domain.viewModel
 
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -19,10 +24,14 @@ import com.john_halaka.booksy.feature_search.domain.model.BookFts
 import com.john_halaka.booksy.feature_search.domain.model.BookWithSnippet
 import com.john_halaka.booksy.ui.presentation.book_content.BookContentEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,6 +43,9 @@ class BookContentViewModel @Inject constructor(
     private val bookmarkUseCases: BookmarkUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val _state = mutableStateOf(BookDetailsState())
+    val state: State<BookDetailsState> = _state
 
     private val _searchResults = MutableLiveData<List<BookWithSnippet>>()
     val searchResults = _searchResults
@@ -53,31 +65,43 @@ class BookContentViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    private val _openedBook = mutableStateOf(
-        Book(
-            id = -1,
-            title = "Unknown",
-            content = "Unknown",
-            author = "unknown",
-            category = "unknown",
-            imageUrl = "Unknown",
-            description = "Unknown"
-        )
-    )
-    val openedBook = _openedBook
-    private val _bookHighlights = MutableLiveData<List<Highlight>>()
-    val bookHighlights = _bookHighlights
-    private val _bookBookmarks = MutableLiveData<List<Bookmark>>()
-    val bookBookmarks = _bookBookmarks
+    private var getAllHighlightsJob: Job? = null
+    private var getAllBookmarksJob: Job? = null
+
 
     init {
         savedStateHandle.get<Int>("bookId")?.let { bookId ->
             if (bookId != -1) {
                 viewModelScope.launch {
                     bookUseCases.getBookById(bookId).also { book ->
-                        _openedBook.value = book
-                        getHighlightsForBook(openedBook.value.id)
-                        getBookmarksForBook(openedBook.value.id)
+                        _state.value = state.value.copy(
+
+                        )
+                    }
+                }
+//                viewModelScope.launch {
+//
+//                }
+                viewModelScope.launch {
+                    bookUseCases.getBookById(bookId).also { book ->
+                        _state.value = state.value.copy(
+                            bookId = book.id,
+                            bookTitle = book.title,
+                            bookAuthor = book.author,
+                            bookCategory = book.category,
+                            bookContent = book.content,
+                            bookDescription = book.description,
+                            imageUrl = book.imageUrl,
+                            spannableContent = SpannableString(book.content)
+                        )
+
+                        getHighlightsForBook(bookId)
+                        getBookmarksForBook(state.value.bookId)
+
+                        Log.d(
+                            "BookContentViewModel",
+                            "spannable content = ${state.value.spannableContent.length}"
+                        )
                     }
                 }
             }
@@ -85,29 +109,33 @@ class BookContentViewModel @Inject constructor(
     }
 
 
- fun onEvent(event: BookContentEvent) {
+    fun onEvent(event: BookContentEvent) {
         Log.d("AddEditNoteViewModel", "onEvent: $event")
         when (event) {
-            is BookContentEvent.BackButtonClick ->{
+            is BookContentEvent.BackButtonClick -> {
                 viewModelScope.launch {
                     _eventFlow.emit(UiEvent.NavigateBack)
                 }
 
             }
         }
-        }
+    }
+
     fun saveFontSize(fontSize: Float) {
         preferencesManager.setFontSize(fontSize)
         _fontSize.value = fontSize
     }
+
     fun saveFontColor(color: Int) {
         preferencesManager.setFontColor(color)
         _fontColor.value = color
     }
+
     fun saveFontWeight(fontWeight: Int) {
         preferencesManager.setFontWeight(fontWeight)
         _fontWeight.value = fontWeight
     }
+
     fun saveBackgroundColor(backgroundColor: Int) {
         preferencesManager.setBackgroundColor(backgroundColor)
         _backgroundColor.value = backgroundColor
@@ -117,7 +145,7 @@ class BookContentViewModel @Inject constructor(
 
         viewModelScope.launch {
             Log.d("BookContentViewModel", "addHighlight is invoked from {$start} to {$end}")
-            val bookId = _openedBook.value.id
+            val bookId = _state.value.bookId
             val highlight = Highlight(bookId = bookId, start = start, end = end)
             highlightUseCases.addHighlight(highlight)
             Log.d("BookContentViewModel", "highlight is saved from {$start} to {$end}")
@@ -126,8 +154,9 @@ class BookContentViewModel @Inject constructor(
             Log.d("BookContentViewModel", "getHighlightsForBook is invoked")
         }
     }
+
     fun addBookmark(start: Int, end: Int) {
-        val bookId = _openedBook.value.id
+        val bookId = _state.value.bookId
         val newBookmark = Bookmark(bookId = bookId, start = start, end = end)
 
         viewModelScope.launch {
@@ -137,41 +166,57 @@ class BookContentViewModel @Inject constructor(
         }
     }
 
-    fun removeBookmark(start: Int, end: Int) {
-        val bookId = _openedBook.value.id
-        val bookmarkToRemove = Bookmark(bookId = bookId, start = start, end = end)
 
-        viewModelScope.launch {
-            bookmarkUseCases.deleteBookmark(bookmarkToRemove)
-            // Fetch the updated bookmarks for the current book
-            getBookmarksForBook(bookId)
+//    fun removeHighlight(start: Int, end: Int) {
+//        val bookId = _state.value.bookId
+//        val highlight = Highlight(bookId = bookId, start = start, end = end)
+//        viewModelScope.launch {
+//            Log.d("BookContentViewModel", "Removing highlight from {$start} to {$end}")
+//            highlightUseCases.removeHighlight(highlight)
+//            getHighlightsForBook(bookId)
+//            Log.d("BookContentViewModel", "Updated highlights fetched")
+//        }
+//    }
 
-        }
-    }
-
-
-    fun removeHighlight(start: Int, end: Int) {
-        val bookId = _openedBook.value.id
-        val highlight = Highlight(bookId = bookId, start = start, end = end)
-        viewModelScope.launch {
-            highlightUseCases.removeHighlight(highlight)
-            getHighlightsForBook(bookId)
-        }
-    }
-
-    private fun getHighlightsForBook(bookId: Int) {
-        viewModelScope.launch {
-            highlightUseCases.getBookHighlights(bookId).collect { bookHighlights ->
-                _bookHighlights.value = bookHighlights
-
+    private suspend fun getHighlightsForBook(bookId: Int) {
+        getAllHighlightsJob?.cancel()
+        try {
+            Log.d("BookContentViewModel", "getHighlightsForBook is called")
+            getAllHighlightsJob = highlightUseCases.getBookHighlights(bookId).onEach { highlights ->
+                _state.value = state.value.copy(
+                    bookHighlights = highlights
+                )
+                Log.d("BookContentViewModel", "getHighlightsForBook is successful $highlights")
+            }.launchIn(viewModelScope)
+            delay(200)
+            _state.value.bookHighlights.forEach { highlight ->
+                _state.value.spannableContent.setSpan(
+                    BackgroundColorSpan(Color.Yellow.toArgb()),
+                    highlight.start,
+                    highlight.end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
             }
+            Log.d("BookContentViewModel", "HighlightsForBook is spanned")
+
+        } catch (e: Exception) {
+            Log.e("BookContentViewModel", "Error getting Book highlights: ${e.message}")
         }
     }
-    private fun getBookmarksForBook(bookId: Int) {
-        viewModelScope.launch {
-            bookmarkUseCases.getBookmarksForBook(bookId).collect { bookmarks->
-                _bookBookmarks.value = bookmarks
+
+    private suspend fun getBookmarksForBook(bookId: Int) {
+        getAllBookmarksJob?.cancel()
+        try {
+            Log.d("BookContentViewModel", "getBookmarksForBook is called")
+            getAllBookmarksJob = bookmarkUseCases.getBookmarksForBook(bookId).onEach { bookmarks ->
+                _state.value = state.value.copy(
+                    bookmarks = bookmarks
+                )
+                Log.d("BookContentViewModel", "getBookmarksForBook is successful $bookmarks")
             }
+                .launchIn(viewModelScope)
+        } catch (e: Exception) {
+            Log.e("BookContentViewModel", "Error getting Book bookmarks: ${e.message}")
         }
     }
 
@@ -206,6 +251,7 @@ class BookContentViewModel @Inject constructor(
             }
         }
     }
+
     sealed class UiEvent {
         object NavigateBack : UiEvent()
     }

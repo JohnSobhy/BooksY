@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class GetAllBookmarks (
     private val repository: BookmarkRepository
 ){
-    suspend operator fun invoke() : Flow<List<Bookmark>>{
+     operator fun invoke() : Flow<List<Bookmark>>{
         Log.d("getAllBookmarkUseCase", "getAllBookmarkUseCase is invoked")
 
         return repository.getAllBookmarks()

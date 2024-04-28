@@ -8,7 +8,6 @@ import com.john_halaka.booksy.feature_book.data.data_source.BookDao
 import com.john_halaka.booksy.feature_book.data.data_source.BooksYDatabase
 import com.john_halaka.booksy.feature_book.data.repository.BookRepositoryImpl
 import com.john_halaka.booksy.feature_book.domain.repository.BookRepository
-import com.john_halaka.booksy.feature_book.network.ImageFetcher
 import com.john_halaka.booksy.feature_book.network.JsonFetcher
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
 import com.john_halaka.booksy.feature_book.use_cases.GetAllBooks
@@ -30,8 +29,6 @@ import com.john_halaka.booksy.feature_highlight.use_cases.AddHighlight
 import com.john_halaka.booksy.feature_highlight.use_cases.GetBookHighlights
 import com.john_halaka.booksy.feature_highlight.use_cases.HighlightUseCases
 import com.john_halaka.booksy.feature_highlight.use_cases.RemoveHighlight
-import com.john_halaka.booksy.feature_search.data.data_source.BookFtsDao
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,7 +47,7 @@ object AppModule {
     fun provideDatabase(@ApplicationContext context: Context): BooksYDatabase {
         return Room.databaseBuilder(
             context,
-           BooksYDatabase::class.java, "database-name"
+            BooksYDatabase::class.java, "database-name"
         ).build()
     }
 
@@ -72,25 +69,25 @@ object AppModule {
         db: BooksYDatabase,
         jsonFetcher: JsonFetcher,
 
-    ): BookRepository{
+        ): BookRepository {
         return BookRepositoryImpl(db.bookDao, db.bookFtsDao, jsonFetcher)
     }
 
     @Provides
     @Singleton
-    fun provideHighlightRepository(db: BooksYDatabase) : HighlightRepository{
+    fun provideHighlightRepository(db: BooksYDatabase): HighlightRepository {
         return HighlightRepositoryImpl(db.highlightDao)
     }
 
     @Provides
     @Singleton
-    fun provideBookmarkRepository(db: BooksYDatabase) : BookmarkRepository{
+    fun provideBookmarkRepository(db: BooksYDatabase): BookmarkRepository {
         return BookmarkRepositoryImpl(db.bookmarkDao)
     }
 
     @Provides
     @Singleton
-    fun provideContext(application: Application) : Context = application.applicationContext
+    fun provideContext(application: Application): Context = application.applicationContext
 
     @Provides
     @Singleton
@@ -124,12 +121,6 @@ object AppModule {
             removeHighlight = RemoveHighlight(repository)
 
         )
-    }
-
-    @Provides
-    @Singleton
-    fun provideImageFetcher(@ApplicationContext context: Context): ImageFetcher {
-        return ImageFetcher(context)
     }
 
     @Provides

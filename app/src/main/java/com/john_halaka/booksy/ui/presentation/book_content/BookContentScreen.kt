@@ -68,7 +68,6 @@ fun BookContentScreen(
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
-
                 is BookContentViewModel.UiEvent.NavigateBack -> {
                     navController.navigateUp()
                 }

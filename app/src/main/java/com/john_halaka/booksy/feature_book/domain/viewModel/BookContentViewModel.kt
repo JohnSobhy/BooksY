@@ -75,16 +75,6 @@ class BookContentViewModel @Inject constructor(
                 viewModelScope.launch {
                     bookUseCases.getBookById(bookId).also { book ->
                         _state.value = state.value.copy(
-
-                        )
-                    }
-                }
-//                viewModelScope.launch {
-//
-//                }
-                viewModelScope.launch {
-                    bookUseCases.getBookById(bookId).also { book ->
-                        _state.value = state.value.copy(
                             bookId = book.id,
                             bookTitle = book.title,
                             bookAuthor = book.author,
@@ -94,29 +84,21 @@ class BookContentViewModel @Inject constructor(
                             imageUrl = book.imageUrl,
                             spannableContent = SpannableString(book.content)
                         )
-
                         getHighlightsForBook(bookId)
                         getBookmarksForBook(state.value.bookId)
-
-                        Log.d(
-                            "BookContentViewModel",
-                            "spannable content = ${state.value.spannableContent.length}"
-                        )
+                        Log.d("BookContentViewModel", "spannable content = ${state.value.spannableContent.length}")
                     }
                 }
             }
         }
     }
 
-
     fun onEvent(event: BookContentEvent) {
-        Log.d("AddEditNoteViewModel", "onEvent: $event")
         when (event) {
             is BookContentEvent.BackButtonClick -> {
                 viewModelScope.launch {
                     _eventFlow.emit(UiEvent.NavigateBack)
                 }
-
             }
         }
     }
@@ -142,7 +124,6 @@ class BookContentViewModel @Inject constructor(
     }
 
     fun addHighlight(start: Int, end: Int) {
-
         viewModelScope.launch {
             Log.d("BookContentViewModel", "addHighlight is invoked from {$start} to {$end}")
             val bookId = _state.value.bookId
@@ -161,7 +142,6 @@ class BookContentViewModel @Inject constructor(
 
         viewModelScope.launch {
             bookmarkUseCases.addBookmark(newBookmark)
-            // Fetch the updated bookmarks for the current book
             getBookmarksForBook(bookId)
         }
     }

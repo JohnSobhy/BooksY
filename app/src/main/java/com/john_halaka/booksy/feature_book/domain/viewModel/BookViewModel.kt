@@ -34,7 +34,6 @@ class BookViewModel @Inject constructor(
             getAllBooks()
             getAllBookmarks()
         }
-
     }
 
 
@@ -70,7 +69,6 @@ class BookViewModel @Inject constructor(
 
     private suspend fun getAllBooks() {
         getAllBooksJob?.cancel()
-
         try {
             getAllBooksJob = bookUseCases.getAllBooks().onEach { books ->
                 _state.value = state.value.copy(
@@ -82,10 +80,8 @@ class BookViewModel @Inject constructor(
             Log.e("BookViewModel", "Error getting Books: ${e.message}")
         }
     }
-
     private fun getAllBookmarks() {
         getAllBookmarksJob?.cancel()
-
         try {
             Log.d("BookViewModel", "getBookmarks is called")
             getAllBookmarksJob = bookmarkUseCases.getAllBookmarks().onEach { bookmarks ->
@@ -95,7 +91,6 @@ class BookViewModel @Inject constructor(
                 Log.d("BookViewModel", "bookmarks are $bookmarks ")
             }
                 .launchIn(viewModelScope)
-
         } catch (e: Exception) {
             Log.e("BookViewModel", "Error getting Bookmarks: ${e.message}")
         }

@@ -11,15 +11,12 @@ class BookmarkRepositoryImpl(
     override suspend fun insertBookmark(bookmark: Bookmark) {
         dao.insertBookmark(bookmark)
     }
-
     override suspend fun deleteBookmark(bookmark: Bookmark) {
         dao.deleteBookmark(bookmark)
     }
-
     override  fun getBookmarksForBook(bookId: Int): Flow<List<Bookmark>> {
       return  dao.getBookmarksForBook(bookId)
     }
-
     override  fun getAllBookmarks(): Flow<List<Bookmark>> {
        return dao.getAllBookmarks()
     }

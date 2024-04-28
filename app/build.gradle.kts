@@ -109,6 +109,7 @@ dependencies {
 
     //Downloadable fonts
     implementation ("androidx.compose.ui:ui-text-google-fonts:1.6.6")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
 
 

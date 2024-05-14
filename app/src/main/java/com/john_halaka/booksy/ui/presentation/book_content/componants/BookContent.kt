@@ -1,8 +1,6 @@
 package com.john_halaka.booksy.ui.presentation.book_content.componants
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +25,9 @@ import com.john_halaka.booksy.feature_book.domain.model.Book
 import com.john_halaka.booksy.feature_book.domain.viewModel.BookContentViewModel
 
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun BookContent(
-    book : Book,
+    book: Book,
     modifier: Modifier,
     backgroundColor: Int,
     fontSize: Float,
@@ -38,53 +35,53 @@ fun BookContent(
     fontWeight: Int,
     viewModel: BookContentViewModel,
     context: Context
-){
+) {
     Column(
-                    modifier
-                        .background(Color(backgroundColor))
-                ) {
+        modifier
+            .background(Color(backgroundColor))
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AsyncImage(
+                    model = book.imageUrl,
+                    contentDescription = book.title,
+                    modifier = Modifier.size(200.dp)
+                )
+                SelectionContainer {
+                    Text(
+                        text = book.title,
+                        fontSize = fontSize.sp,
+                        color = Color(fontColor),
+                        fontWeight = FontWeight(fontWeight),
+                        lineHeight = fontSize.sp * 1.5f
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(
+                    LazyColumn(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-
+                            .fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        AsyncImage(
-                            model = book.imageUrl,
-                            contentDescription = book.title,
-                            modifier = Modifier.size(200.dp)
-                        )
-                        SelectionContainer {
-                            Text(
-                                text = book.title,
-                                fontSize = fontSize.sp,
-                                color = Color(fontColor),
-                                fontWeight = FontWeight(fontWeight),
-                                lineHeight = fontSize.sp * 1.5f
-                            )
+                    )
+                    {
+                        item {
+                            XMLView(viewModel, context = context)
                         }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Box(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            )
-                            {
-                                item {
-                                    XMLView(viewModel, context = context)
-                                }
-                            }
-                        }
-
                     }
                 }
+
             }
+        }
+    }
 }

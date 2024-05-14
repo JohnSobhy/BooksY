@@ -36,4 +36,6 @@
     <string name="remove">Remove</string>
     <string name="cannot_copy_more_than_150_characters">Cannot copy more than 150 characters</string>
     <string name="text_copied_to_clipboard">Text copied to clipboard</string>
+    <string name="please_check_your_network_connection">Please check your network connection.</string>
+    <string name="retry">Retry</string>
 </resources>

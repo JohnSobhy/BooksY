@@ -12,7 +12,7 @@ class HighlightRepositoryImpl (
         highlightDao.insert(highlight)
     }
 
-    override suspend fun removeHighlight(highlight: Highlight) {
+    override suspend fun deleteHighlight(highlight: Highlight) {
         highlightDao.delete(highlight)
     }
 

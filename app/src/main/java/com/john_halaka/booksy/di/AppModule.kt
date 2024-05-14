@@ -8,6 +8,8 @@ import com.john_halaka.booksy.feature_book.data.data_source.BookDao
 import com.john_halaka.booksy.feature_book.data.data_source.BooksYDatabase
 import com.john_halaka.booksy.feature_book.data.repository.BookRepositoryImpl
 import com.john_halaka.booksy.feature_book.domain.repository.BookRepository
+import com.john_halaka.booksy.feature_book.network.ConnectivityObserver
+import com.john_halaka.booksy.feature_book.network.ConnectivityObserverImpl
 import com.john_halaka.booksy.feature_book.network.JsonFetcher
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
 import com.john_halaka.booksy.feature_book.use_cases.GetAllBooks
@@ -91,9 +93,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBookUseCases(repository: BookRepository): BookUseCases {
+    fun provideBookUseCases(
+        repository: BookRepository,
+        connectivityObserver: ConnectivityObserver
+        ): BookUseCases {
         return BookUseCases(
-            getAllBooks = GetAllBooks(repository),
+            getAllBooks = GetAllBooks(repository, connectivityObserver),
             getBookById = GetBookById(repository),
             insertAllBooks = InsertAllBooks(repository),
             searchBooks = SearchBooks(repository),
@@ -110,6 +115,11 @@ object AppModule {
             addBookmark = AddBookmark(repository),
             deleteBookmark = DeleteBookmark(repository)
         )
+    }
+
+    @Provides
+    fun provideConnectivityObserver(@ApplicationContext context: Context): ConnectivityObserver {
+        return ConnectivityObserverImpl(context)
     }
 
     @Provides

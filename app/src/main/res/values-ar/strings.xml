@@ -37,4 +37,6 @@
     <string name="remove">حذف التظليل</string>
     <string name="cannot_copy_more_than_150_characters">لا يمكن نسخ اكتر من 150 حرف</string>
     <string name="text_copied_to_clipboard">تم نسخ النص</string>
+    <string name="please_check_your_network_connection">تأكد من الاتصال بالانترنت</string>
+    <string name="retry">اعادة المحاولة</string>
 </resources>

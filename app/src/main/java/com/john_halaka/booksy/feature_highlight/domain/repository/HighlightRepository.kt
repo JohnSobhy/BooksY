@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface HighlightRepository {
     suspend fun insertHighlight(highlight: Highlight)
-    suspend fun removeHighlight(highlight: Highlight)
+    suspend fun deleteHighlight(highlight: Highlight)
 
     suspend fun getBookHighlights(bookId: Int): Flow<List<Highlight>>
 }

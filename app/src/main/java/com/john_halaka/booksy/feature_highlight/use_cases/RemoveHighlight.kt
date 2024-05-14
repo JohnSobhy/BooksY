@@ -10,6 +10,6 @@ class RemoveHighlight (
     suspend operator fun invoke(highlight: Highlight) {
         Log.d("removeHighlightUseCase", "removeHighlightUseCase is invoked")
 
-        repository.removeHighlight(highlight)
+        repository.deleteHighlight(highlight)
     }
 }

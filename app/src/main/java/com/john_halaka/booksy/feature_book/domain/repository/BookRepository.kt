@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface BookRepository {
     suspend fun getBooksFromJson(): Flow<List<Book>>
+    suspend fun getBooksFromDb(): Flow<List<Book>>
     suspend fun insertAll(books: List<Book>)
     suspend fun getBookById(id: Int): Book
     suspend fun getOriginalBook(bookFts: BookFts) : Book

@@ -20,6 +20,7 @@ class BookRepositoryImpl (
 ) : BookRepository {
 
     override suspend fun getBooksFromJson(): Flow<List<Book>> {
+
         Log.d("BookRepositoryImpl", "Fetching JSON")
         val json =
             jsonFetcher.fetchJson(jsonUrl)
@@ -58,6 +59,14 @@ class BookRepositoryImpl (
             return bookDao.getAll()
         }
 
+    override suspend fun getBooksFromDb(): Flow<List<Book>> {
+         val booksFromDb = bookDao.getAll().first()
+        if (booksFromDb.isEmpty()) {
+        // No books in the database
+        Log.d("BookRepositoryImpl", "No books in the database.")
+        }
+         return bookDao.getAll()
+    }
     override suspend fun insertAll(books: List<Book>) {
         // implemented in the getAll
     }

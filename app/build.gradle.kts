@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -14,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.john_halaka.booksy"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

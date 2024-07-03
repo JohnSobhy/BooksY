@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -109,6 +110,12 @@ dependencies {
     //Downloadable fonts
     implementation ("androidx.compose.ui:ui-text-google-fonts:1.6.6")
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    implementation ("androidx.browser:browser:1.4.0")
+
+    implementation ("com.google.code.gson:gson:2.10.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
 
 
 

@@ -17,6 +17,10 @@ import com.john_halaka.booksy.feature_book.use_cases.GetBookById
 import com.john_halaka.booksy.feature_book.use_cases.GetOriginalBook
 import com.john_halaka.booksy.feature_book.use_cases.InsertAllBooks
 import com.john_halaka.booksy.feature_book.use_cases.SearchBooks
+import com.john_halaka.booksy.feature_book_view.data.LinkRepositoryImpl
+import com.john_halaka.booksy.feature_book_view.data.LinkSourceDao
+import com.john_halaka.booksy.feature_book_view.data.LinkTargetDao
+import com.john_halaka.booksy.feature_book_view.domain.repository.LinkRepository
 import com.john_halaka.booksy.feature_bookmark.data.repository.BookmarkRepositoryImpl
 import com.john_halaka.booksy.feature_bookmark.domain.repository.BookmarkRepository
 import com.john_halaka.booksy.feature_bookmark.use_cases.AddBookmark
@@ -131,6 +135,28 @@ object AppModule {
             removeHighlight = RemoveHighlight(repository)
 
         )
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideLinkSourceDao(database: BooksYDatabase): LinkSourceDao {
+        return database.linkSourceDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideLinkTargetDao(database: BooksYDatabase): LinkTargetDao {
+        return database.linkTargetDao
+    }
+
+    @Provides
+    @Singleton
+    fun provideLinkRepository(
+        linkSourceDao: LinkSourceDao,
+        linkTargetDao: LinkTargetDao
+    ): LinkRepository {
+        return LinkRepositoryImpl(linkSourceDao, linkTargetDao)
     }
 
     @Provides

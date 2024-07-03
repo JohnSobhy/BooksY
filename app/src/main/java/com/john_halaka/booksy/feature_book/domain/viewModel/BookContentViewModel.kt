@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import com.john_halaka.booksy.feature_book.data.PreferencesManager
 import com.john_halaka.booksy.feature_book.domain.model.Book
 import com.john_halaka.booksy.feature_book.use_cases.BookUseCases
+import com.john_halaka.booksy.feature_book_view.domain.repository.LinkRepository
 import com.john_halaka.booksy.feature_bookmark.domain.model.Bookmark
 import com.john_halaka.booksy.feature_bookmark.use_cases.BookmarkUseCases
 import com.john_halaka.booksy.feature_highlight.domain.model.Highlight
@@ -24,6 +25,7 @@ import com.john_halaka.booksy.feature_search.domain.model.BookFts
 import com.john_halaka.booksy.feature_search.domain.model.BookWithSnippet
 import com.john_halaka.booksy.ui.presentation.book_content.BookContentEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,6 +43,7 @@ class BookContentViewModel @Inject constructor(
     private val highlightUseCases: HighlightUseCases,
     private val preferencesManager: PreferencesManager,
     private val bookmarkUseCases: BookmarkUseCases,
+    val linkRepository: LinkRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -208,6 +211,13 @@ class BookContentViewModel @Inject constructor(
         return result
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("BookContentViewModel", "onCleared is called")
+            linkRepository.deleteAllData() // Call a function to delete all data
+        }
+    }
 
     fun searchBooks(query: String) {
         Log.d("BookContentViewModel", "searchBooks invoked")

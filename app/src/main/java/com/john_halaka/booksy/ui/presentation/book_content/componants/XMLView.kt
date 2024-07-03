@@ -59,7 +59,7 @@ fun XMLView(
         },
         update = { view ->
             // Get the TextView from the inflated layout
-            val textView = view.findViewById<TextView>(R.id.text_view)
+            val textView = view.findViewById<TextView>(R.id.bookTextView)
 
             spannableString.value = state.spannableContent
 

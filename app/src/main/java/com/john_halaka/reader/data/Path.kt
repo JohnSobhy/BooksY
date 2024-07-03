@@ -5,7 +5,7 @@ class Path() {
         fun getMainPath(path: String): String {
             var lastIdx = 0
             for (i in path.length - 1 downTo 0) {
-                if (path[i] == '/') {
+                if (path[i] == '\\') {
                     lastIdx = i
                     break
                 }

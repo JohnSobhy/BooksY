@@ -1,4 +1,4 @@
-package com.john_halaka.reader.data
+package reader.data
 
 class BookInfo(
     val bookId: String,

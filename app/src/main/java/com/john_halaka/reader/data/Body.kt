@@ -1,4 +1,4 @@
-package com.john_halaka.reader.data
+package reader.data
 
 class Body(val string: String) {
 }

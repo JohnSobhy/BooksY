@@ -1,3 +1,5 @@
+package com.john_halaka.booksy.feature_book_view.domain.bookParser
+
 sealed class ParsedElement {
     data class Text(val content: String) : ParsedElement()
     data class Font(val content: String, val fontTag: String) : ParsedElement()

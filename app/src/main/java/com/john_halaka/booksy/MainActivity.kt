@@ -2,18 +2,13 @@ package com.john_halaka.booksy
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
 import android.text.method.LinkMovementMethod
-import android.text.style.BackgroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -26,17 +21,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import com.john_halaka.booksy.feature_book.domain.viewModel.BookContentViewModel
-import com.john_halaka.booksy.feature_book_view.domain.NavigationCallback
+import com.john_halaka.booksy.feature_book_view.domain.bookParser.NavigationCallback
 import com.john_halaka.booksy.ui.theme.BooksYTheme
 import dagger.hilt.android.AndroidEntryPoint
-import displayBookContent
+import com.john_halaka.booksy.feature_book_view.domain.bookParser.displayBookContent
+import com.john_halaka.booksy.feature_book_view.domain.bookParser.loadBookTextFromRaw
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
-import loadBookTextFromRaw
-import androidx.compose.ui.graphics.Color
+import reader.data.Book
 
 
 @AndroidEntryPoint
@@ -46,6 +41,7 @@ class MainActivity : AppCompatActivity(), NavigationCallback {
     // is called when the activity is finished
 
     private val viewModel: BookContentViewModel by viewModels()
+
     override fun onStop() {
         super.onStop()
         // Launch a coroutine to clear the database
@@ -92,6 +88,12 @@ class MainActivity : AppCompatActivity(), NavigationCallback {
             }
         }
 
+        val inputStream = this.resources.openRawResource(R.raw.book_328478)
+        val bookContent = inputStream.bufferedReader().use { it.readText() }
+        val book = Book.instance(bookContent)
+
+        Log.d("MainActivity", "onCreate: ${book.body.string}")
+
         setContent {
             BooksYTheme {
                 // A surface container using the 'background' color from the theme
@@ -101,8 +103,9 @@ class MainActivity : AppCompatActivity(), NavigationCallback {
                 ) {
                     //Navigation()
                     BookContentView(
-                        viewModel = viewModel
-                        , navigationCallback = this
+                        viewModel = viewModel,
+                        navigationCallback = this,
+                        book = book
                     )
                 }
             }
@@ -111,7 +114,12 @@ class MainActivity : AppCompatActivity(), NavigationCallback {
 
     override fun navigateTo(destination: Int) {
         val bookTextView = findViewById<TextView>(R.id.bookTextView) // Get the TextView
-
+//        val text = bookTextView.text.toString() // Get the current text content
+//        var x =""
+//        for (i in destination -10 until destination+ 10){
+//            x += text[i]
+//        }
+      //  Log.d("navigateTo", "destination: $x")
         // Use withContext to switch to the main thread for UI operations
         lifecycleScope.launch(Dispatchers.Main) { // Use lifecycleScope for coroutine launch
             // Scrolling with animation
@@ -127,7 +135,8 @@ class MainActivity : AppCompatActivity(), NavigationCallback {
 @Composable
 fun BookContentView(
     viewModel: BookContentViewModel,
-    navigationCallback: NavigationCallback
+    navigationCallback: NavigationCallback,
+    book: Book
 ) {
     val currentContext = LocalContext.current
 
@@ -141,13 +150,13 @@ fun BookContentView(
             //val bookImageView: ImageView = view.findViewById(R.id.bookImageView)
 
             // Load the book text from a file or a string
-            val bookText = loadBookTextFromRaw(currentContext)
+             // val bookText = loadBookTextFromRaw(currentContext)
 
             // Display the book content
             Log.d("BookContentView", "Displaying book content")
             displayBookContent(
                 currentContext,
-                bookText,
+                book = book,
                 bookTextView,
                 viewModel,
                 navigationCallback

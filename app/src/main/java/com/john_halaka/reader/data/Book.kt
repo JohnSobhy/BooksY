@@ -3,8 +3,6 @@ package reader.data
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
-import com.john_halaka.reader.data.Body
-import com.john_halaka.reader.data.BookInfo
 import reader.encryption.Encryption
 import reader.extension.indexesOf
 import reader.stream.LocalFile
@@ -72,37 +70,115 @@ class Book(
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     fun encodedBookContent(): String {
         val gson = Gson()
-        val bodyContent = body.string
         val infoContent = gson.toJson(bookInfo)
         val encoding = gson.toJson(encoding)
-        var images = ""
-
-        for (i in this.images) {
-            images += "${i.name}$SPLITTER${i.encodedData}$SPLITTER"
-        }
+        val bodyContent = body.string
+        val newBody = bodyWithImages(bodyContent)
         // must be in coroutines
-        return Encryption.encrypt("$infoContent$SPLITTER$encoding$SPLITTER$bodyContent$SPLITTER$images")
+        return /*Encryption.encrypt(*/"$infoContent$SPLITTER$encoding$SPLITTER$newBody"/*)*/
     }
 
-    fun bookName() = "Book_${bookInfo.bookId}.in"
+    private fun bodyWithImages(body: String): String {
+        var newBody = ""
+        val imageTagIndexes = getImageTagIndexes(body)
+        var idx = 0
+        for (i in body.indices) {
+            if (idx < imageTagIndexes.size && i == imageTagIndexes[idx].endIdx) {
+                val imageData = getImage(imageTagIndexes[idx].imageName)
+                newBody += (IMAGE_SPLITTER + imageData)
+                idx++
+            }
+            newBody += body[i]
+        }
+        return newBody
+    }
+
+    private fun getImage(imageName: String): String? {
+        for (i in images)
+            if (i.name == imageName) return i.encodedData
+        return null
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+    fun bookName() = "book_${bookInfo.bookId}.in"
 
     companion object {
         private const val SPLITTER = "!fdg@f#$%sff^ad&*(ag)s"
 
+        ////////////////////////////////////////////////////////////////////
+        private const val IMAGE_SPLITTER = "!f#$%sff^ad&*(ag)s"
+        ////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////////////////////
         fun instance(encodedBookContent: String): Book {
             val gson = Gson()
 
-            val bookContent = Encryption.decrypt(encodedBookContent)
+            val bookContent = encodedBookContent
             val contents = bookContent.split(SPLITTER)
             val bookInfo = gson.fromJson(contents[0], BookInfo::class.java)
             val encoding = gson.fromJson(contents[1], Encoding::class.java)
-            val bookBody = contents[2]
+            var bookBody = contents[2]
 
+            val splitter = splitBodyToImagesAndBody(bookBody)
+            bookBody = splitter.first
+            val images = splitter.second
 
-            return Book(Body(bookBody), bookInfo, encoding, getImages(contents))
+            println(bookBody)
+
+            return Book(Body(bookBody), bookInfo, encoding, images)
         }
+
+
+        private fun splitBodyToImagesAndBody(bodyContent: String): Pair<String, List<Image>> {
+            val localFile = LocalFile.instance()
+            val imageTagIndexes = getImageTagIndexes(bodyContent)
+            //////////////////  here, we have content of image tag (image name and image date) //////////////
+            /////////////////   so we split them in store them in list of images ////////////////////////////
+            val images = mutableListOf<Image>()
+            for (i in imageTagIndexes) {
+                val image = bodyContent.substring(i.startIdx, i.endIdx)
+                val contents = image.split(IMAGE_SPLITTER)
+                val imageName = contents[0]
+                val imageData = contents[1]
+                images.add(Image(imageName, null, localFile.decode(imageData)))
+            }
+
+            /////////////////////   here, we have body content which contains image name and image data in image tag ////////////////////////
+            ////////////////////    so we will remove all content in image tag and add image name only /////////////////////
+            var idxOfBody = 0
+            var idxOfImageTag = 0
+            var newBody = ""
+            var imageTag = imageTagIndexes[idxOfImageTag]     // initial value
+            while (true) {
+                if (idxOfBody == imageTag.startIdx) {
+                    newBody += images[idxOfImageTag].name
+                    idxOfBody = imageTag.endIdx      // this line to skip image name and image splitter and image data
+                    if (idxOfImageTag < imageTagIndexes.size - 1) {
+                        imageTag = imageTagIndexes[++idxOfImageTag]
+                    }
+                }
+                newBody += bodyContent[idxOfBody]
+                idxOfBody++
+                if (idxOfBody == bodyContent.length) break
+            }
+            return Pair(newBody, images)
+        }
+
+        private fun getImageTagIndexes(body: String): List<ImageTag> {
+            val regex = Regex("##I(.*?):", RegexOption.DOT_MATCHES_ALL)
+            val indexes = mutableListOf<ImageTag>() // pair of image name and last idx of name
+            regex.findAll(body).forEach {
+                val imageName = it.groupValues[1]
+                indexes.add(ImageTag(imageName, it.range.first, it.range.last))
+            }
+            return indexes
+        }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         fun instance(path: String, folderInfo: FolderInfo): Book {
             val mainPath = Path.getMainPath(path)
@@ -113,23 +189,9 @@ class Book(
         }
 
 
-        private fun getImages(contents: List<String>): List<Image> {
-            val localFile = LocalFile.instance()
-
-            val images = mutableListOf<Image>()
-
-            var idx = 3
-            while (idx < contents.size - 1) {
-                val imageName = contents[idx]
-                val decodedImage = localFile.decode(contents[idx + 1])
-                images.add(Image(imageName, null, decodedImage))
-                idx += 2
-            }
-            return images
-        }
-
         private fun getBookBody(mainPath: String, folderInfo: FolderInfo): Body {
             val localFile = LocalFile.instance()
+            println("$mainPath${folderInfo.bookFile}")
             val bookContent = localFile.read("$mainPath${folderInfo.bookFile}")
             return Body(bookContent)
         }
@@ -137,20 +199,22 @@ class Book(
         private fun getBookInfo(mainPath: String, folderInfo: FolderInfo): BookInfo {
             val localFile = LocalFile.instance()
             val gson = Gson()
+
             val bookInfoContent = localFile.read("$mainPath${folderInfo.bookInfoFile}")
             val bookInfo = gson.fromJson(bookInfoContent, BookInfo::class.java)
             return bookInfo
         }
 
         private fun getEncoding(mainPath: String, folderInfo: FolderInfo): Encoding {
-            val tag = getTag(mainPath, folderInfo)
+            val tag = getTags(mainPath, folderInfo)
             val fonts = getFonts(mainPath, folderInfo)
             return Encoding(tag, fonts)
         }
 
-        private fun getTag(mainPath: String, folderInfo: FolderInfo): Tag {
+        private fun getTags(mainPath: String, folderInfo: FolderInfo): Tag {
             val localFile = LocalFile.instance()
             val gson = Gson()
+
             val encodingContent = localFile.read("$mainPath${folderInfo.encodingFile}")
             val jsonObject = JsonParser.parseString(encodingContent).asJsonObject
             val tagJsonObj = jsonObject.getAsJsonObject("tag")
@@ -172,3 +236,5 @@ class Book(
     }
 
 }
+
+data class ImageTag(val imageName: String, val startIdx: Int, val endIdx: Int)

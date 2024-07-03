@@ -6,12 +6,10 @@ class Tag(
     val tagLength: String,
     val formatLength: String,
     val linkKeyLength: String,
-
     val webLink: String,
     val internalLink: String,
     val internalLinkTarget: String,
     val image: String,
-
     val pageTag: String,
     val chapterTag: String
 )

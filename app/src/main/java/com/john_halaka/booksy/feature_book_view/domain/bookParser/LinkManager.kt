@@ -1,6 +1,5 @@
-package com.john_halaka.booksy.feature_book_view.domain
+package com.john_halaka.booksy.feature_book_view.domain.bookParser
 
-import LinkType
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -47,10 +46,6 @@ fun applyLinkCustomizations(
                         navigationCallback
                     )
                 }
-
-                LinkType.TARGET -> {
-                    // Handle target link if needed
-                }
             }
         }
 
@@ -60,9 +55,7 @@ fun applyLinkCustomizations(
             ds.isUnderlineText = true
         }
     }
-
     spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
     Log.d("ApplyLink", "Applied link: $linkType from $start to $end")
 }
 
@@ -79,7 +72,6 @@ fun openWebLink(context: Context, url: String) {
             .show()
     }
 }
-
 
 fun navigateToInternalLink(
     viewModel: BookContentViewModel,
@@ -103,7 +95,7 @@ fun saveLinkTarget(
     viewModel: BookContentViewModel,
     tag: String,
     destination: Int
-){
+) {
     viewModel.viewModelScope.launch(Dispatchers.IO) {
         viewModel.linkRepository.insertTarget(
             LinkTarget(
@@ -113,14 +105,14 @@ fun saveLinkTarget(
             )
         )
     }
-
 }
+
 fun saveLinkSource(
     viewModel: BookContentViewModel,
     start: Int,
     end: Int,
     tag: String
-){
+) {
     viewModel.viewModelScope.launch {
         viewModel.linkRepository.insertSource(
             LinkSource(

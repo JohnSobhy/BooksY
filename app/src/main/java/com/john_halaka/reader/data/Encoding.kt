@@ -1,3 +1,3 @@
 package reader.data
 
-class Encoding(val tag: Tag, val fonts: Map<String, Font>)
+class Encoding(val tag: Tag, val font: Map<String, Font>)

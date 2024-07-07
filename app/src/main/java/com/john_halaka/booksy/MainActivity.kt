@@ -114,20 +114,15 @@ class MainActivity : AppCompatActivity(), NavigationCallback {
 
     override fun navigateTo(destination: Int) {
         val bookTextView = findViewById<TextView>(R.id.bookTextView) // Get the TextView
-//        val text = bookTextView.text.toString() // Get the current text content
-//        var x =""
-//        for (i in destination -10 until destination+ 10){
-//            x += text[i]
-//        }
-      //  Log.d("navigateTo", "destination: $x")
+
         // Use withContext to switch to the main thread for UI operations
-        lifecycleScope.launch(Dispatchers.Main) { // Use lifecycleScope for coroutine launch
+        lifecycleScope.launch(Dispatchers.Main) {
+            // Use lifecycleScope for coroutine launch
             // Scrolling with animation
             val scrollAnimation = ObjectAnimator.ofInt(bookTextView, "scrollY", destination)
             scrollAnimation.duration = 500 // Adjust duration as needed
             scrollAnimation.interpolator = AccelerateDecelerateInterpolator() // Optional
             scrollAnimation.start()
-
         }
     }
 }
@@ -139,7 +134,6 @@ fun BookContentView(
     book: Book
 ) {
     val currentContext = LocalContext.current
-
     AndroidView(
         factory = { context ->
             val view =
@@ -150,7 +144,7 @@ fun BookContentView(
             //val bookImageView: ImageView = view.findViewById(R.id.bookImageView)
 
             // Load the book text from a file or a string
-             // val bookText = loadBookTextFromRaw(currentContext)
+            // val bookText = loadBookTextFromRaw(currentContext)
 
             // Display the book content
             Log.d("BookContentView", "Displaying book content")

@@ -34,8 +34,8 @@ fun applyLinkCustomizations(
         override fun onClick(widget: View) {
             when (linkType) {
                 LinkType.WEB -> {
-                    openWebLink(context, key)
-                    Log.d("ApplyLink", "web link clicked: $linkType from $start to $end")
+//                    openWebLink(context, key)
+//                    Log.d("ApplyLink", "web link clicked: $linkType from $start to $end")
                 }
 
                 LinkType.INTERNAL -> {

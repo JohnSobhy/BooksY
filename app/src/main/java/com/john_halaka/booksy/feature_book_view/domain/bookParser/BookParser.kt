@@ -6,11 +6,10 @@ import android.graphics.BitmapFactory
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
+import android.text.style.URLSpan
 import android.util.Log
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide
 import com.john_halaka.booksy.R
 import com.john_halaka.booksy.feature_book.domain.viewModel.BookContentViewModel
 import kotlinx.coroutines.launch
@@ -33,7 +32,6 @@ fun displayBookContent(
             is ParsedElement.Text -> {
                 spannableStringBuilder.append(element.content)
             }
-
             is ParsedElement.Font -> {
                 val start = spannableStringBuilder.length
                 spannableStringBuilder.append(element.content + "\n")
@@ -49,8 +47,16 @@ fun displayBookContent(
             }
 
             is ParsedElement.WebLink -> {
+
+                // use URLspan
                 val start = spannableStringBuilder.length
-                spannableStringBuilder.append(element.address)
+                spannableStringBuilder.setSpan(
+                    URLSpan(element.address),
+                    0,
+                    element.address.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
                 val end = spannableStringBuilder.length
                 applyLinkCustomizations(
                     context,
@@ -79,12 +85,18 @@ fun displayBookContent(
                     navigationCallback
                 )
             }
+            is ParsedElement.InternalLinkTarget -> {
+                val start = spannableStringBuilder.length
+               saveLinkTarget(viewModel, element.key, start)
+
+                val end = spannableStringBuilder.length
+            }
 
             is ParsedElement.Image -> {
-
-                val byteArray: ByteArray = book.images[0].decodedData!!
+                // use ImageSpan
+                val byteArray: ByteArray = book.images[1].decodedData!!
                 val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-//                val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.test)
+//              val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.test)
                 val displayMetrics = context.resources.displayMetrics
                 val screenWidth = displayMetrics.widthPixels
                 val originalWidth = bitmap.width
@@ -103,11 +115,8 @@ fun displayBookContent(
                 )
                 spannableStringBuilder.append(" \n ")
             }
-
-            else -> {}
         }
     }
-
     textView.text = spannableStringBuilder
 }
 
@@ -116,7 +125,6 @@ fun parseBookText(book: Book, viewModel: BookContentViewModel): List<ParsedEleme
     val elements = mutableListOf<ParsedElement>()
     val regex = Regex("##(?!l)(.*?)\\*\\*|##l(\\w+)", RegexOption.DOT_MATCHES_ALL)
     var lastIndex = 0
-
     val bookText = book.body.string
     val encoding = book.encoding
     val bookImages = book.images
@@ -129,13 +137,19 @@ fun parseBookText(book: Book, viewModel: BookContentViewModel): List<ParsedEleme
         if (matchResult.groups[1] != null) {
             //Handle the first pattern (##(?!l)(.*?)**)
             val tagContent = matchResult.groupValues[1]
-            elements.add(parseTag(tagContent, viewModel, encoding, start, end))
+            val parsedTag = parseTag(tagContent, viewModel, encoding, start, end)
+            elements.add(parsedTag)
+           // adjustmentOffset += parsedTag.size // Adjust for the tag
+            //elements.add(parseTag(tagContent, viewModel, encoding, start, end))
 
         } else if (matchResult.groups[2] != null) {
             // Handle the second pattern (##l(\\w+))
             val targetLinkKey = matchResult.groups[2]?.value
             val tagIndex = matchResult.groups[2]?.range?.start
-            elements.add(parseTag(start, targetLinkKey!!, viewModel))
+            val parsedTag = parseTag(start, targetLinkKey!!, viewModel) // Adjust start index
+            elements.add(parsedTag)
+
+           // elements.add(parseTag(start, targetLinkKey!!, viewModel))
         }
 
         // Add normal text before the tag
@@ -156,12 +170,12 @@ fun parseBookText(book: Book, viewModel: BookContentViewModel): List<ParsedEleme
 
 // this overloading is used for adding link targets to the database
 fun parseTag(start: Int, key: String, viewModel: BookContentViewModel): ParsedElement {
-    viewModel.viewModelScope.launch {
-        saveLinkTarget(
-          viewModel =  viewModel,
-            tag = key,
-            destination = start)
-    }
+//    viewModel.viewModelScope.launch {
+//        saveLinkTarget(
+//          viewModel =  viewModel,
+//            tag = key,
+//            destination = start)
+//    }
     return ParsedElement.InternalLinkTarget(start, key)
 }
 
@@ -188,6 +202,7 @@ fun parseTag(
         }
 
         tags.image -> ParsedElement.Image(content)
+
         else -> ParsedElement.Font(content, tagStart)
     }
 }

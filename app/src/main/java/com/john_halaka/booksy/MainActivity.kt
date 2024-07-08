@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -114,15 +115,20 @@ class MainActivity : AppCompatActivity(), NavigationCallback {
 
     override fun navigateTo(destination: Int) {
         val bookTextView = findViewById<TextView>(R.id.bookTextView) // Get the TextView
+        val scrollView = findViewById<ScrollView>(R.id.scrollView)
+
 
         // Use withContext to switch to the main thread for UI operations
         lifecycleScope.launch(Dispatchers.Main) {
             // Use lifecycleScope for coroutine launch
             // Scrolling with animation
-            val scrollAnimation = ObjectAnimator.ofInt(bookTextView, "scrollY", destination)
-            scrollAnimation.duration = 500 // Adjust duration as needed
-            scrollAnimation.interpolator = AccelerateDecelerateInterpolator() // Optional
-            scrollAnimation.start()
+//            val scrollAnimation = ObjectAnimator.ofInt(bookTextView, "scrollY", destination)
+//            scrollAnimation.duration = 500 // Adjust duration as needed
+//            scrollAnimation.interpolator = AccelerateDecelerateInterpolator() // Optional
+//            scrollAnimation.start()
+            val line = bookTextView.layout.getLineForOffset(destination)
+            val y = bookTextView.layout.getLineTop(line)
+            scrollView.smoothScrollTo(0, y )
         }
     }
 }
